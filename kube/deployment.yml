@@ -1,0 +1,111 @@
+---
+# apiVersion: v1
+# data:
+#    config.toml: |
+#     title = "Tweet Service Configuration"
+#     # address
+#     address = ":80"
+#     # redis
+#     [redis]
+#         address = "redis.staging:6379"
+#         db = 0
+#         pass = ""
+#     # context
+#     [context]
+#         timeout = 2
+# kind: ConfigMap
+# metadata:
+#   name: vol-config-goexample
+#   namespace: staging
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: goexample
+  namespace: staging
+spec:
+  selector:
+    matchLabels:
+      app: goexample
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
+  template:
+    metadata: 
+      labels:
+        app: goexample
+      annotations:
+        checksum/deployment: TMP_DEP_CHECKSUM
+    spec:
+      containers:
+      - name: goexample
+        image: zokypesch/go_example:latest
+        imagePullPolicy: "Always"
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /ping
+            port: 80
+          initialDelaySeconds: 15
+          periodSeconds: 15
+          timeoutSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: 80
+          initialDelaySeconds: 15
+          periodSeconds: 15
+          timeoutSeconds: 10
+        resources:
+          limits:
+            cpu: 100m
+            memory: 400M
+          requests:
+            cpu: 50m
+            memory: 200M
+        volumeMounts:
+        - name: configs
+          mountPath: /goexample
+      volumes:
+      - name: configs
+        # configMap:
+        #   name: vol-config-goexample
+---
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: goexample
+  namespace: staging
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1beta1
+    kind: Deployment
+    name: goexample
+  minReplicas: 3
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      targetAverageUtilization: 70
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: goexample
+  namespace: staging
+spec:
+  type: NodePort
+  selector:
+    app: goexample
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      name: goexample
