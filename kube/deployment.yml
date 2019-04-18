@@ -86,7 +86,7 @@ spec:
     apiVersion: apps/v1beta1
     kind: Deployment
     name: goexample
-  minReplicas: 3
+  minReplicas: 1
   maxReplicas: 5
   metrics:
   - type: Resource

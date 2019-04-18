@@ -4,20 +4,25 @@ metadata:
   name: goexampleingress
   namespace: staging
   annotations:
-    # nginx.ingress.kubernetes.io/rewrite-target: /
-    # kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /
+#    kubernetes.io/ingress.class: "nginx"
 spec:
   backend:
     serviceName: goexample
     servicePort: 80
 # spec:
 #   rules:
+#   # - host: myhost.com
 #   - http:
 #       paths:
 #       - path: /
 #         backend:
 #           serviceName: goexample
 #           servicePort: 80
+      # - path: /bar
+      #   backend:
+      #     serviceName: service2
+      #     servicePort: 8080
 
 # apiVersion: extensions/v1beta1
 # kind: Ingress
@@ -48,3 +53,5 @@ spec:
 #   loadBalancer:
 #     ingress:
 #     - ip: 35.241.2.160
+
+# when you apply a ingress it takes 5 - 10 minute

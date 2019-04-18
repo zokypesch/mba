@@ -1,10 +1,11 @@
+# build docker
 docker build -t zokypesch/go_example .
 
 # login to docker
 docker login
 
 username: zokypesch
-password: maulanakerenaja
+password: sepertibiasa
 
 # push to cloud 
 
@@ -50,3 +51,9 @@ kubectl exec goexample-5c6445974-4j7v9 cat /etc/resolv.conf -n staging
 
  if you want to connect directly please add service (see a deployment.yml) ex: goexample 
  so final: goexample.staging.svc.cluster.local
+
+# exec 
+kubectl exec -it goexample-5c6445974-k467h -n staging -- /bin/bash
+
+exit
+for exit exec
